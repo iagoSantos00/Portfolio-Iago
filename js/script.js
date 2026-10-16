@@ -1,67 +1,100 @@
-const prefersReducedMotion =
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-
-// ===== MENU MOBILE =====
+// ==============================
+// MENU MOBILE
+// ==============================
 
 const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
 
 if (menuToggle && navLinks) {
   menuToggle.addEventListener("click", () => {
-    const menuAberto = navLinks.classList.toggle("ativo");
+    const aberto = navLinks.classList.toggle("ativo");
 
-    menuToggle.setAttribute(
-      "aria-expanded",
-      String(menuAberto)
-    );
-
+    menuToggle.setAttribute("aria-expanded", String(aberto));
     menuToggle.setAttribute(
       "aria-label",
-      menuAberto ? "Fechar menu" : "Abrir menu"
+      aberto ? "Fechar menu" : "Abrir menu"
     );
   });
 
   navLinks.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", () => {
       navLinks.classList.remove("ativo");
-
       menuToggle.setAttribute("aria-expanded", "false");
       menuToggle.setAttribute("aria-label", "Abrir menu");
     });
   });
+
+  // Fecha o menu com a tecla Escape.
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      navLinks.classList.remove("ativo");
+      menuToggle.setAttribute("aria-expanded", "false");
+      menuToggle.setAttribute("aria-label", "Abrir menu");
+    }
+  });
 }
 
+// ==============================
+// ANO AUTOMÁTICO NO RODAPÉ
+// ==============================
 
-// ===== ANO AUTOMÁTICO DO RODAPÉ =====
-
-const yearElement = document.querySelector("#year");
+const yearElement = document.getElementById("year");
 
 if (yearElement) {
   yearElement.textContent = new Date().getFullYear();
 }
 
+// ==============================
+// ANIMAÇÕES AO ROLAR A PÁGINA
+// ==============================
 
-// ===== BARRA DE PROGRESSO =====
+const revealElements = document.querySelectorAll(".reveal");
 
-const scrollProgress = document.querySelector(".scroll-progress");
+if ("IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visivel");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.12
+    }
+  );
+
+  revealElements.forEach((element) => {
+    revealObserver.observe(element);
+  });
+} else {
+  // Alternativa para navegadores sem IntersectionObserver.
+  revealElements.forEach((element) => {
+    element.classList.add("visivel");
+  });
+}
+
+// ==============================
+// BARRA DE PROGRESSO DA PÁGINA
+// ==============================
+
+const progressBar = document.querySelector(".scroll-progress");
 
 function atualizarProgresso() {
-  if (!scrollProgress) return;
+  if (!progressBar) return;
 
-  const alturaDocumento =
-    document.documentElement.scrollHeight -
-    window.innerHeight;
-
-  if (alturaDocumento <= 0) {
-    scrollProgress.style.width = "0%";
-    return;
-  }
+  const alturaRolavel =
+    document.documentElement.scrollHeight - window.innerHeight;
 
   const progresso =
-    (window.scrollY / alturaDocumento) * 100;
+    alturaRolavel > 0
+      ? (window.scrollY / alturaRolavel) * 100
+      : 0;
 
-  scrollProgress.style.width = `${progresso}%`;
+  progressBar.style.width =
+    `${Math.min(100, Math.max(0, progresso))}%`;
 }
 
 window.addEventListener("scroll", atualizarProgresso, {
@@ -72,212 +105,198 @@ window.addEventListener("resize", atualizarProgresso);
 
 atualizarProgresso();
 
+// ==============================
+// EFEITO NOS CARDS DE PROJETOS
+// ==============================
 
-// ===== ANIMAÇÃO DE ENTRADA DAS SEÇÕES =====
+const projectCards = document.querySelectorAll(".projeto-card");
 
-const elementosReveal = document.querySelectorAll(".reveal");
+const movimentoReduzido = window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+).matches;
 
-if ("IntersectionObserver" in window) {
-  const observador = new IntersectionObserver(
-    (entradas, observer) => {
-      entradas.forEach((entrada) => {
-        if (entrada.isIntersecting) {
-          entrada.target.classList.add("visivel");
-          observer.unobserve(entrada.target);
-        }
-      });
-    },
-    {
-      threshold: 0.12
-    }
-  );
+const suportaHover = window.matchMedia("(hover: hover)").matches;
 
-  elementosReveal.forEach((elemento) => {
-    observador.observe(elemento);
-  });
-} else {
-  elementosReveal.forEach((elemento) => {
-    elemento.classList.add("visivel");
+if (!movimentoReduzido && suportaHover) {
+  projectCards.forEach((card) => {
+    card.addEventListener("pointermove", (event) => {
+      const rect = card.getBoundingClientRect();
+
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      const centroX = rect.width / 2;
+      const centroY = rect.height / 2;
+
+      const rotateY = ((x - centroX) / centroX) * 3;
+      const rotateX = ((centroY - y) / centroY) * 3;
+
+      card.style.setProperty("--mouse-x", `${x}px`);
+      card.style.setProperty("--mouse-y", `${y}px`);
+
+      card.style.transform =
+        `perspective(800px) rotateX(${rotateX}deg) ` +
+        `rotateY(${rotateY}deg) translateY(-2px)`;
+    });
+
+    card.addEventListener("pointerleave", () => {
+      card.style.transform = "";
+    });
   });
 }
 
-
-// ===== CARDS DE SKILLS COM GIRO 3D =====
+// ==============================
+// CARDS INTERATIVOS DE SKILLS
+// ==============================
 
 document.querySelectorAll(".skill-card-inner").forEach((card) => {
   card.addEventListener("click", () => {
-    const virou = card.classList.toggle("is-flipped");
+    const flipped = card.classList.toggle("is-flipped");
 
-    const titulo = card.querySelector(".skill-card-title");
-    const categoria = card.querySelector(
-      ".skill-card-front > span"
+    card.setAttribute("aria-expanded", String(flipped));
+
+    const categoria =
+      card.querySelector(".skill-card-title")?.textContent ||
+      card.querySelector(".skill-card-front > span")?.textContent ||
+      "categoria";
+
+    card.setAttribute(
+      "aria-label",
+      flipped
+        ? `Voltar para a frente de ${categoria}`
+        : `Mostrar tecnologias de ${categoria}`
     );
-
-    card.setAttribute("aria-expanded", String(virou));
-
-    if (virou && titulo) {
-      card.setAttribute(
-        "aria-label",
-        `Voltar para a categoria ${titulo.textContent}`
-      );
-    } else if (categoria) {
-      card.setAttribute(
-        "aria-label",
-        `Mostrar tecnologias de ${categoria.textContent}`
-      );
-    }
   });
 });
 
+// ==============================
+// FUNDO ANIMADO DE PARTÍCULAS
+// ==============================
 
-// ===== EFEITO DE LUZ NOS CARDS =====
+const canvas = document.getElementById("particulas-bg");
+const context = canvas ? canvas.getContext("2d") : null;
 
-const cardsComEfeito = document.querySelectorAll(
-  ".projeto-card"
-);
+let particles = [];
+let animationFrameId;
 
-cardsComEfeito.forEach((card) => {
-  card.addEventListener("mousemove", (evento) => {
-    const retangulo = card.getBoundingClientRect();
+function configurarCanvas() {
+  if (!canvas || !context) return;
 
-    const x = evento.clientX - retangulo.left;
-    const y = evento.clientY - retangulo.top;
+  const largura = window.innerWidth;
+  const altura = window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    card.style.setProperty("--mouse-x", `${x}px`);
-    card.style.setProperty("--mouse-y", `${y}px`);
-  });
-});
+  canvas.width = largura * dpr;
+  canvas.height = altura * dpr;
 
+  canvas.style.width = `${largura}px`;
+  canvas.style.height = `${altura}px`;
 
-// ===== FUNDO ANIMADO DE PARTÍCULAS =====
+  context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-const canvas = document.querySelector("#particulas-bg");
-const contexto = canvas?.getContext("2d");
-
-if (canvas && contexto) {
-  const movimentoReduzido = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
+  // Menos partículas em telas menores para reduzir o uso de recursos.
+  const quantidade = Math.min(
+    70,
+    Math.floor((largura * altura) / 18000)
   );
 
-  let particulas = [];
-  let largura = 0;
-  let altura = 0;
-  let animacaoId;
+  particles = Array.from({ length: quantidade }, () => ({
+    x: Math.random() * largura,
+    y: Math.random() * altura,
+    radius: Math.random() * 1.5 + 0.5,
+    vx: (Math.random() - 0.5) * 0.35,
+    vy: (Math.random() - 0.5) * 0.35
+  }));
+}
 
-  const quantidadeParticulas = 65;
-  const distanciaConexao = 120;
-
-  function ajustarCanvas() {
-    const escala = Math.min(window.devicePixelRatio || 1, 2);
-
-    largura = window.innerWidth;
-    altura = window.innerHeight;
-
-    canvas.width = largura * escala;
-    canvas.height = altura * escala;
-
-    canvas.style.width = `${largura}px`;
-    canvas.style.height = `${altura}px`;
-
-    contexto.setTransform(escala, 0, 0, escala, 0, 0);
-
-    criarParticulas();
+function desenharParticulas() {
+  if (
+    !canvas ||
+    !context ||
+    movimentoReduzido ||
+    document.hidden
+  ) {
+    return;
   }
 
-  function criarParticulas() {
-    particulas = [];
+  const largura = window.innerWidth;
+  const altura = window.innerHeight;
 
-    for (let i = 0; i < quantidadeParticulas; i++) {
-      particulas.push({
-        x: Math.random() * largura,
-        y: Math.random() * altura,
-        raio: Math.random() * 1.8 + 0.5,
-        velocidadeX: (Math.random() - 0.5) * 0.5,
-        velocidadeY: (Math.random() - 0.5) * 0.5
-      });
+  context.clearRect(0, 0, largura, altura);
+
+  particles.forEach((particle, index) => {
+    particle.x += particle.vx;
+    particle.y += particle.vy;
+
+    if (particle.x < 0 || particle.x > largura) {
+      particle.vx *= -1;
     }
-  }
 
-  function desenharParticulas() {
-    contexto.clearRect(0, 0, largura, altura);
+    if (particle.y < 0 || particle.y > altura) {
+      particle.vy *= -1;
+    }
 
-    particulas.forEach((particula) => {
-      particula.x += particula.velocidadeX;
-      particula.y += particula.velocidadeY;
+    // Desenha cada partícula.
+    context.beginPath();
+    context.arc(
+      particle.x,
+      particle.y,
+      particle.radius,
+      0,
+      Math.PI * 2
+    );
 
-      if (particula.x < 0 || particula.x > largura) {
-        particula.velocidadeX *= -1;
-      }
+    context.fillStyle = "rgba(88, 166, 255, 0.55)";
+    context.fill();
 
-      if (particula.y < 0 || particula.y > altura) {
-        particula.velocidadeY *= -1;
-      }
+    // Liga partículas próximas.
+    for (let i = index + 1; i < particles.length; i++) {
+      const other = particles[i];
 
-      contexto.beginPath();
+      const dx = particle.x - other.x;
+      const dy = particle.y - other.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
 
-      contexto.arc(
-        particula.x,
-        particula.y,
-        particula.raio,
-        0,
-        Math.PI * 2
-      );
+      if (distance < 105) {
+        context.beginPath();
+        context.moveTo(particle.x, particle.y);
+        context.lineTo(other.x, other.y);
 
-      contexto.fillStyle = "rgba(88, 166, 255, 0.7)";
-      contexto.fill();
-    });
+        context.strokeStyle =
+          `rgba(88, 166, 255, ${0.13 * (1 - distance / 105)})`;
 
-    for (let i = 0; i < particulas.length; i++) {
-      for (let j = i + 1; j < particulas.length; j++) {
-        const primeira = particulas[i];
-        const segunda = particulas[j];
-
-        const distancia = Math.hypot(
-          primeira.x - segunda.x,
-          primeira.y - segunda.y
-        );
-
-        if (distancia < distanciaConexao) {
-          const opacidade =
-            (1 - distancia / distanciaConexao) * 0.2;
-
-          contexto.beginPath();
-
-          contexto.moveTo(primeira.x, primeira.y);
-          contexto.lineTo(segunda.x, segunda.y);
-
-          contexto.strokeStyle =
-            `rgba(88, 166, 255, ${opacidade})`;
-
-          contexto.lineWidth = 1;
-          contexto.stroke();
-        }
+        context.lineWidth = 1;
+        context.stroke();
       }
     }
-
-    if (!movimentoReduzido.matches) {
-      animacaoId = requestAnimationFrame(desenharParticulas);
-    }
-  }
-
-  function iniciarParticulas() {
-    cancelAnimationFrame(animacaoId);
-
-    if (movimentoReduzido.matches) {
-      contexto.clearRect(0, 0, largura, altura);
-      return;
-    }
-
-    desenharParticulas();
-  }
-
-  ajustarCanvas();
-  iniciarParticulas();
-
-  window.addEventListener("resize", () => {
-    ajustarCanvas();
-    iniciarParticulas();
   });
 
-  movimentoReduzido.addEventListener("change", iniciarParticulas);
+  animationFrameId = window.requestAnimationFrame(desenharParticulas);
+}
+
+function iniciarParticulas() {
+  if (!canvas || !context || movimentoReduzido) return;
+
+  window.cancelAnimationFrame(animationFrameId);
+  configurarCanvas();
+
+  if (!document.hidden) {
+    desenharParticulas();
+  }
+}
+
+if (canvas && context && !movimentoReduzido) {
+  iniciarParticulas();
+
+  window.addEventListener("resize", iniciarParticulas);
+
+  document.addEventListener("visibilitychange", () => {
+    window.cancelAnimationFrame(animationFrameId);
+
+    if (!document.hidden) {
+      desenharParticulas();
+    }
+  });
+} else if (canvas) {
+  canvas.style.display = "none";
 }
