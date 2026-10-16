@@ -619,6 +619,12 @@ section {
   color: var(--text-secondary);
 }
 
+/* Mantém todos os tópicos com a mesma cor */
+.timeline li p {
+  color: var(--text-secondary);
+
+}
+
 /* ===== CONTATO ===== */
 
 .contato-links {
