@@ -17,23 +17,47 @@ if (menuToggle && navLinks) {
     );
   });
 
-  navLinks.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      navLinks.classList.remove("ativo");
-      menuToggle.setAttribute("aria-expanded", "false");
-      menuToggle.setAttribute("aria-label", "Abrir menu");
-    });
-  });
+ 
+navLinks.querySelectorAll('a[href^="#"]').forEach((link) => {
+  link.addEventListener("click", (event) => {
+    const destino = document.querySelector(
+      link.getAttribute("href")
+    );
 
-  // Fecha o menu com a tecla Escape.
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      navLinks.classList.remove("ativo");
-      menuToggle.setAttribute("aria-expanded", "false");
-      menuToggle.setAttribute("aria-label", "Abrir menu");
+    if (!destino) return;
+
+    event.preventDefault();
+
+    navLinks.classList.remove("ativo");
+    menuToggle.setAttribute("aria-expanded", "false");
+    menuToggle.setAttribute("aria-label", "Abrir menu");
+
+    const alturaCabecalho =
+      document.querySelector(".header")?.getBoundingClientRect().height || 0;
+
+    const espacamento = 12;
+
+    const posicao =
+      destino.getBoundingClientRect().top +
+      window.scrollY -
+      alturaCabecalho -
+      espacamento;
+
+    window.scrollTo({
+      top: Math.max(0, posicao),
+      behavior: window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches ? "auto" : "smooth"
+    });
+
+    const hash = link.getAttribute("href");
+
+    if (window.location.hash !== hash) {
+      history.pushState(null, "", hash);
     }
   });
-}
+});
+
 
 // ==============================
 // ANO AUTOMÁTICO NO RODAPÉ

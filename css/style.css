@@ -30,17 +30,35 @@
 
 
 html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 90px;
-    overflow-x: clip;
+  scroll-behavior: smooth;
+  scroll-padding-top: 30px;
+  overflow-x: clip;
 }
 
-/* Ajuste da navegação em telas menores */
-@media (max-width: 768px) {
-    html {
-        scroll-padding-top: 70px;
-    }
+main section[id] {
+  scroll-margin-top: 30px;
 }
+
+/* Ajuste exclusivo da seção Contato */
+#contato {
+  scroll-margin-top: -35px;
+}
+
+@media (max-width: 768px) {
+  html {
+    scroll-padding-top: 0px;
+  }
+
+  main section[id] {
+    scroll-margin-top: 0px;
+  }
+
+  /* Ajuste exclusivo da seção Contato no celular */
+  #contato {
+    scroll-margin-top: 0;
+  }
+}
+
 
 
 body {
@@ -165,11 +183,10 @@ p {
   background: var(--accent);
   transition: width 0.1s ease-out;
 }
-
 .reveal {
-  opacity: 0;
-  transform: translateY(25px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .reveal.visivel {
@@ -252,11 +269,14 @@ p {
    APRESENTAÇÃO
 ============================== */
 
+
 .hero {
   max-width: 850px;
-  padding-block: clamp(4rem, 10vw, 7rem);
+  padding-top: clamp(2rem, 7vh, 5rem);
+  padding-bottom: clamp(2rem, 7vh, 5rem);
   text-align: center;
 }
+
 
 .hero-welcome {
   margin-bottom: var(--spacing-md);
