@@ -28,11 +28,20 @@
   padding: 0;
 }
 
+
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 90px;
-  overflow-x: clip;
+    scroll-behavior: smooth;
+    scroll-padding-top: 90px;
+    overflow-x: clip;
 }
+
+/* Ajuste da navegação em telas menores */
+@media (max-width: 768px) {
+    html {
+        scroll-padding-top: 70px;
+    }
+}
+
 
 body {
   min-width: 320px;
