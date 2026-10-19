@@ -28,7 +28,6 @@
   padding: 0;
 }
 
-
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 30px;
@@ -46,11 +45,11 @@ main section[id] {
 
 @media (max-width: 768px) {
   html {
-    scroll-padding-top: 0px;
+    scroll-padding-top: 0;
   }
 
   main section[id] {
-    scroll-margin-top: 0px;
+    scroll-margin-top: 0;
   }
 
   /* Ajuste exclusivo da seção Contato no celular */
@@ -59,12 +58,18 @@ main section[id] {
   }
 }
 
-
-
 body {
   min-width: 320px;
   overflow-wrap: break-word;
-  background: linear-gradient(-45deg, #000, #0d1117, #001f3f, #003b73, #0d1117, #000);
+  background: linear-gradient(
+    -45deg,
+    #000,
+    #0d1117,
+    #001f3f,
+    #003b73,
+    #0d1117,
+    #000
+  );
   background-size: 400% 400%;
   animation: gradienteFundo 12s ease infinite;
   color: var(--text-primary);
@@ -132,10 +137,21 @@ p {
 ============================== */
 
 @keyframes gradienteFundo {
-  0%, 100% { background-position: 0% 50%; }
-  25% { background-position: 50% 100%; }
-  50% { background-position: 100% 50%; }
-  75% { background-position: 50% 0%; }
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+
+  25% {
+    background-position: 50% 100%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  75% {
+    background-position: 50% 0%;
+  }
 }
 
 @keyframes aparecerHero {
@@ -143,6 +159,7 @@ p {
     opacity: 0;
     transform: translateY(25px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -154,6 +171,7 @@ p {
     opacity: 0;
     transform: translateY(-25px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -183,6 +201,7 @@ p {
   background: var(--accent);
   transition: width 0.1s ease-out;
 }
+
 .reveal {
   opacity: 1;
   transform: translateY(0);
@@ -269,14 +288,13 @@ p {
    APRESENTAÇÃO
 ============================== */
 
-
 .hero {
   max-width: 850px;
-  padding-top: clamp(2rem, 7vh, 5rem);
-  padding-bottom: clamp(2rem, 7vh, 5rem);
+  padding: clamp(2rem, 6vh, 4rem) 0;
   text-align: center;
+  margin: 0 auto;
+  transform: none;
 }
-
 
 .hero-welcome {
   margin-bottom: var(--spacing-md);
@@ -322,7 +340,9 @@ p {
   flex-wrap: wrap;
   justify-content: center;
   gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
+  margin-top: calc(var(--spacing-xl) - 25px);
+  position: relative;
+  top: -10px;
 }
 
 .btn {
@@ -337,8 +357,11 @@ p {
   font-weight: 600;
   text-align: center;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease,
-    border-color 0.2s ease, transform 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .btn-primary {
@@ -373,7 +396,6 @@ p {
   gap: var(--spacing-xl);
 }
 
-
 /* Foto de perfil */
 .foto-perfil {
   display: flex;
@@ -394,7 +416,6 @@ p {
   border-radius: 16px;
   box-shadow: 0 0 30px rgba(88, 166, 255, 0.18);
 }
-
 
 .sobre-texto {
   min-width: 0;
@@ -664,7 +685,9 @@ p {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   background: rgba(22, 27, 34, 0.88);
-  transition: transform 0.25s ease, border-color 0.25s ease,
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
     background-color 0.25s ease;
 }
 
@@ -822,7 +845,10 @@ p {
     opacity: 0;
     pointer-events: none;
     transform: translateY(-8px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      visibility 0.2s ease;
   }
 
   .nav-links.ativo {
@@ -838,14 +864,51 @@ p {
     font-size: 1rem;
   }
 
+  /* Melhor espaçamento e leitura da apresentação no celular */
+  .hero {
+    width: 100%;
+    max-width: 100%;
+    padding: 2rem 20px;
+    box-sizing: border-box;
+    transform: none;
+  }
+
+  .hero-welcome {
+    font-size: clamp(1.2rem, 5vw, 1.6rem);
+    line-height: 1.4;
+    overflow-wrap: break-word;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 8vw, 2.8rem);
+    line-height: 1.2;
+    overflow-wrap: break-word;
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1rem, 4.5vw, 1.3rem);
+    line-height: 1.5;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+    line-height: 1.8;
+    padding-inline: 2px;
+  }
+
   .hero-actions {
     flex-direction: column;
     align-items: center;
+    padding: 0 8px;
+    gap: 12px;
+    margin-top: 1.5rem;
+    top: 0;
   }
 
   .hero-actions .btn {
     width: 100%;
     max-width: 320px;
+    padding: 0.85rem 1rem;
   }
 
   .skills-grid {
@@ -865,9 +928,29 @@ p {
   }
 }
 
+/* ==============================
+   CELULARES PEQUENOS
+============================== */
+
 @media (max-width: 600px) {
   section {
     padding-inline: 1rem;
+  }
+
+  .hero {
+    padding-inline: 20px;
+  }
+
+  .hero-welcome {
+    margin-bottom: 0.8rem;
+  }
+
+  .hero h1 {
+    margin-bottom: 0.8rem;
+  }
+
+  .hero-subtitle {
+    margin-bottom: 1.25rem;
   }
 
   .contato-grid {
@@ -912,7 +995,16 @@ p {
   }
 
   .hero-welcome {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.8rem, 9vw, 2.2rem);
+  }
+
+  .hero-description {
+    font-size: 0.95rem;
+    line-height: 1.75;
   }
 }
 
