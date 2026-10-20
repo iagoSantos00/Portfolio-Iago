@@ -194,133 +194,179 @@ document.querySelectorAll(".skill-card-inner").forEach((card) => {
 });
 
 // ==============================
-// FUNDO ANIMADO DE PARTÍCULAS
-// ==============================
+// ===== FUNDO FLUXO DIGITAL =====
 
-const canvas = document.getElementById("particulas-bg");
-const context = canvas ? canvas.getContext("2d") : null;
+const canvas = document.querySelector("#particulas-bg");
+const ctx = canvas?.getContext("2d");
 
-let particles = [];
-let animationFrameId;
-
-function configurarCanvas() {
-  if (!canvas || !context) return;
-
-  const largura = window.innerWidth;
-  const altura = window.innerHeight;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-  canvas.width = largura * dpr;
-  canvas.height = altura * dpr;
-
-  canvas.style.width = `${largura}px`;
-  canvas.style.height = `${altura}px`;
-
-  context.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  // Menos partículas em telas menores para reduzir o uso de recursos.
-  const quantidade = Math.min(
-    70,
-    Math.floor((largura * altura) / 18000)
+if (canvas && ctx) {
+  const movimentoReduzido = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
   );
 
-  particles = Array.from({ length: quantidade }, () => ({
-    x: Math.random() * largura,
-    y: Math.random() * altura,
-    radius: Math.random() * 1.5 + 0.5,
-    vx: (Math.random() - 0.5) * 0.35,
-    vy: (Math.random() - 0.5) * 0.35
-  }));
-}
+  let largura = 0;
+  let altura = 0;
+  let trilhas = [];
+  let animacaoId = null;
 
-function desenharParticulas() {
-  if (
-    !canvas ||
-    !context ||
-    movimentoReduzido ||
-    document.hidden
-  ) {
-    return;
+  const quantidadeTrilhas = () =>
+  Math.min(90, Math.max(35, Math.floor(largura / 22)));
+
+  function criarTrilha(indice) {
+    const profundidade = 0.35 + Math.random() * 0.65;
+
+    return {
+      x: Math.random() * largura,
+      y: Math.random() * altura,
+      comprimento: (80 + Math.random() * 220) * profundidade,
+      velocidade: (0.06 + Math.random() * 0.12) * profundidade,
+      inclinacao: 0.15 + Math.random() * 0.50,
+      opacidade: 0.18 + Math.random() * 0.30,
+      espessura: 0.7 + profundidade * 0.8,
+      fase: Math.random() * Math.PI * 2,
+      profundidade,
+      indice
+    };
   }
 
-  const largura = window.innerWidth;
-  const altura = window.innerHeight;
+  function redimensionarCanvas() {
+    const escala = Math.min(window.devicePixelRatio || 1, 1.5);
 
-  context.clearRect(0, 0, largura, altura);
+    largura = window.innerWidth;
+    altura = window.innerHeight;
 
-  particles.forEach((particle, index) => {
-    particle.x += particle.vx;
-    particle.y += particle.vy;
+    canvas.width = Math.round(largura * escala);
+    canvas.height = Math.round(altura * escala);
+    canvas.style.width = `${largura}px`;
+    canvas.style.height = `${altura}px`;
 
-    if (particle.x < 0 || particle.x > largura) {
-      particle.vx *= -1;
-    }
+    ctx.setTransform(escala, 0, 0, escala, 0, 0);
 
-    if (particle.y < 0 || particle.y > altura) {
-      particle.vy *= -1;
-    }
-
-    // Desenha cada partícula.
-    context.beginPath();
-    context.arc(
-      particle.x,
-      particle.y,
-      particle.radius,
-      0,
-      Math.PI * 2
+    trilhas = Array.from(
+      { length: quantidadeTrilhas() },
+      (_, indice) => criarTrilha(indice)
     );
 
-    context.fillStyle = "rgba(88, 166, 255, 0.55)";
-    context.fill();
-
-    // Liga partículas próximas.
-    for (let i = index + 1; i < particles.length; i++) {
-      const other = particles[i];
-
-      const dx = particle.x - other.x;
-      const dy = particle.y - other.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < 105) {
-        context.beginPath();
-        context.moveTo(particle.x, particle.y);
-        context.lineTo(other.x, other.y);
-
-        context.strokeStyle =
-          `rgba(88, 166, 255, ${0.13 * (1 - distance / 105)})`;
-
-        context.lineWidth = 1;
-        context.stroke();
-      }
-    }
-  });
-
-  animationFrameId = window.requestAnimationFrame(desenharParticulas);
-}
-
-function iniciarParticulas() {
-  if (!canvas || !context || movimentoReduzido) return;
-
-  window.cancelAnimationFrame(animationFrameId);
-  configurarCanvas();
-
-  if (!document.hidden) {
-    desenharParticulas();
+    desenhar(true);
   }
-}
 
-if (canvas && context && !movimentoReduzido) {
-  iniciarParticulas();
+  function desenhar(parado = false) {
+    ctx.clearRect(0, 0, largura, altura);
 
-  window.addEventListener("resize", iniciarParticulas);
+    trilhas.forEach((trilha) => {
+      const oscilacao = Math.sin(trilha.fase) * 12;
+      const xInicial = trilha.x;
+      const yInicial = trilha.y + oscilacao;
+      const xFinal = xInicial + trilha.comprimento;
+      const yFinal =
+        yInicial + trilha.comprimento * trilha.inclinacao;
+
+      // Linha fina que sugere uma trilha digital no espaço.
+      const gradiente = ctx.createLinearGradient(
+        xInicial,
+        yInicial,
+        xFinal,
+        yFinal
+      );
+
+      gradiente.addColorStop(0, "rgba(45, 135, 255, 0)");
+      gradiente.addColorStop(
+        0.55,
+        `rgba(55, 145, 255, ${trilha.opacidade * 0.45})`
+      );
+      gradiente.addColorStop(
+        1,
+        `rgba(105, 190, 255, ${trilha.opacidade})`
+      );
+
+      ctx.beginPath();
+      ctx.moveTo(xInicial, yInicial);
+      ctx.lineTo(xFinal, yFinal);
+      ctx.strokeStyle = gradiente;
+      ctx.lineWidth = trilha.espessura;
+      ctx.stroke();
+
+      // Pequeno ponto luminoso viajando pela trilha.
+      const progresso = (trilha.fase % (Math.PI * 2)) / (Math.PI * 2);
+      const pontoX = xInicial + (xFinal - xInicial) * progresso;
+      const pontoY = yInicial + (yFinal - yInicial) * progresso;
+
+      const brilho = ctx.createRadialGradient(
+        pontoX, pontoY, 0,
+        pontoX, pontoY, 7 * trilha.profundidade
+      );
+
+      brilho.addColorStop(0, "rgba(140, 205, 255, 0.8)");
+      brilho.addColorStop(1, "rgba(50, 130, 255, 0)");
+
+      ctx.beginPath();
+      ctx.arc(
+        pontoX,
+        pontoY,
+        5 * trilha.profundidade,
+        0,
+        Math.PI * 2
+      );
+      ctx.fillStyle = brilho;
+      ctx.fill();
+
+      if (!parado) {
+        trilha.x += trilha.velocidade;
+        trilha.fase += 0.025 * trilha.profundidade;
+
+        if (trilha.x > largura + trilha.comprimento) {
+          trilha.x = -trilha.comprimento;
+          trilha.y = Math.random() * altura;
+          trilha.fase = Math.random() * Math.PI * 2;
+        }
+      }
+    });
+  }
+
+  function animar() {
+    if (document.hidden) {
+      animacaoId = null;
+      return;
+    }
+
+    desenhar();
+    animacaoId = requestAnimationFrame(animar);
+  }
+
+  function iniciarAnimacao() {
+    if (animacaoId !== null || document.hidden) return;
+
+    if (movimentoReduzido.matches) {
+      desenhar(true);
+      return;
+    }
+
+    animacaoId = requestAnimationFrame(animar);
+  }
+
+  function pararAnimacao() {
+    if (animacaoId !== null) {
+      cancelAnimationFrame(animacaoId);
+      animacaoId = null;
+    }
+  }
 
   document.addEventListener("visibilitychange", () => {
-    window.cancelAnimationFrame(animationFrameId);
-
-    if (!document.hidden) {
-      desenharParticulas();
+    if (document.hidden) {
+      pararAnimacao();
+    } else {
+      iniciarAnimacao();
     }
   });
-} else if (canvas) {
-  canvas.style.display = "none";
-}
+
+  movimentoReduzido.addEventListener("change", () => {
+    pararAnimacao();
+    desenhar(true);
+    iniciarAnimacao();
+  });
+
+  window.addEventListener("resize", redimensionarCanvas);
+
+  redimensionarCanvas();
+  iniciarAnimacao();
+}}
