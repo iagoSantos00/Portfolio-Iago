@@ -37,7 +37,7 @@ navLinks.querySelectorAll('a[href^="#"]').forEach((link) => {
 
   
  const espacamento =
-  link.getAttribute("href") === "#contato" ? -55 :
+  link.getAttribute("href") === "#contato" ? -65 :
   link.getAttribute("href") === "#experiencia" ? -50 : 12;
   
 
