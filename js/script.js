@@ -35,7 +35,11 @@ navLinks.querySelectorAll('a[href^="#"]').forEach((link) => {
     const alturaCabecalho =
       document.querySelector(".header")?.getBoundingClientRect().height || 0;
 
-    const espacamento = 12;
+  
+ const espacamento =
+  link.getAttribute("href") === "#contato" ? -55 :
+  link.getAttribute("href") === "#experiencia" ? -50 : 12;
+  
 
     const posicao =
       destino.getBoundingClientRect().top +
@@ -323,4 +327,5 @@ if (canvas && context && !movimentoReduzido) {
   });
 } else if (canvas) {
   canvas.style.display = "none";
+}
 }

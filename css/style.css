@@ -40,7 +40,7 @@ main section[id] {
 
 /* Ajuste exclusivo da seção Contato */
 #contato {
-  scroll-margin-top: -35px;
+  scroll-margin-top: 80px;
 }
 
 @media (max-width: 768px) {
@@ -54,7 +54,7 @@ main section[id] {
 
   /* Ajuste exclusivo da seção Contato no celular */
   #contato {
-    scroll-margin-top: 0;
+    scroll-margin-top: 60;
   }
 }
 
